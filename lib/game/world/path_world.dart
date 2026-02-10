@@ -1,4 +1,4 @@
-import 'dart:ui' show Color, Paint;
+import 'dart:ui' show Color, Offset, Paint, Rect;
 
 import 'package:flame/components.dart';
 
@@ -58,6 +58,23 @@ class PathWorld extends Component {
     _cleanupSegments(distance);
 
     super.update(dt);
+  }
+
+  /// Returns true if the given point (in world/screen coordinates)
+  /// lies within any current safe path segment.
+  bool isPointInSafePath(Vector2 point) {
+    for (final vs in _segments) {
+      final rect = Rect.fromLTWH(
+        vs.rect.position.x,
+        vs.rect.position.y,
+        vs.rect.size.x,
+        vs.rect.size.y,
+      );
+      if (rect.contains(Offset(point.x, point.y))) {
+        return true;
+      }
+    }
+    return false;
   }
 
   void _ensureSegmentsForDistance(

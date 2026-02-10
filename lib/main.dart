@@ -2,6 +2,7 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'game/core/game_session_state.dart';
 import 'game/core/zigzag_game.dart';
 import 'game/difficulty/level_config.dart';
 
@@ -217,22 +218,191 @@ class _MainMenuScreen extends StatelessWidget {
 
 /// Screen that hosts the Flame game widget. UI (menus, HUD, etc.)
 /// will sit on top of this via overlays or Flutter widgets.
-class _GameScreen extends StatelessWidget {
+class _GameScreen extends StatefulWidget {
   const _GameScreen();
 
   @override
-  Widget build(BuildContext context) {
+  State<_GameScreen> createState() => _GameScreenState();
+}
+
+class _GameScreenState extends State<_GameScreen> {
+  late final ZigZagGame _game;
+  late GameSessionState _session;
+
+  @override
+  void initState() {
+    super.initState();
     final levels = Levels.initialLevels();
-    final game = ZigZagGame(
+    _game = ZigZagGame(
       levels: levels,
       initialLevelIndex: 0,
     )..startLevel(0);
 
+    _session = _game.session;
+    _game.addSessionListener(_onSessionChanged);
+  }
+
+  @override
+  void dispose() {
+    _game.removeSessionListener(_onSessionChanged);
+    super.dispose();
+  }
+
+  void _onSessionChanged(GameSessionState next) {
+    if (!mounted) return;
+    setState(() {
+      _session = next;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final level = _game.currentLevel;
+    final distance = _session.verticalDistance.toInt();
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
-        child: GameWidget(
-          game: game,
+        child: Stack(
+          children: [
+            GameWidget(
+              game: _game,
+            ),
+            // HUD
+            Positioned(
+              top: 8,
+              left: 12,
+              right: 12,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        level.displayName,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'Distance: $distance',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.pause,
+                      color: Colors.white,
+                    ),
+                    onPressed: _game.isRunning ? _game.pauseGame : null,
+                  ),
+                ],
+              ),
+            ),
+            // Game over overlay
+            if (_game.isGameOver)
+              Container(
+                color: Colors.black54,
+                child: Center(
+                  child: Card(
+                    color: const Color(0xFF202020),
+                    margin: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            'Game Over',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Distance: $distance',
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text('Main Menu'),
+                              ),
+                              FilledButton(
+                                onPressed: () {
+                                  _game.restartCurrentLevel();
+                                },
+                                child: const Text('Restart'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            // Pause overlay
+            if (_game.isPaused)
+              Container(
+                color: Colors.black45,
+                child: Center(
+                  child: Card(
+                    color: const Color(0xFF202020),
+                    margin: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            'Paused',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text('Main Menu'),
+                              ),
+                              FilledButton(
+                                onPressed: _game.resumeGame,
+                                child: const Text('Resume'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );

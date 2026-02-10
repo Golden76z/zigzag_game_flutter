@@ -3,6 +3,7 @@ import 'dart:ui' show Color, Paint;
 import 'package:flame/components.dart';
 import 'package:flame/game.dart' as flame;
 
+import '../difficulty/difficulty_curve.dart';
 import '../difficulty/difficulty_descriptor.dart';
 import '../difficulty/level_config.dart';
 import '../player/player_component.dart';
@@ -39,13 +40,39 @@ class ZigZagGame extends flame.FlameGame {
 
   late GameSessionState _session;
   late DifficultyDescriptor _difficulty;
+  late final PathWorld _pathWorld;
   late final PlayerComponent _player;
 
   GameSessionState get session => _session;
   DifficultyDescriptor get difficulty => _difficulty;
+  PathWorld get pathWorld => _pathWorld;
   PlayerComponent get player => _player;
 
   bool get isRunning => _session.isRunning && !_session.isGameOver;
+  bool get isGameOver => _session.isGameOver;
+  bool get isPaused => !_session.isRunning && !_session.isGameOver;
+
+  LevelConfig get currentLevel => levels[_session.levelIndex];
+
+  // Simple listener mechanism so the Flutter UI can react to session
+  // changes without coupling the game core directly to Flutter types.
+  final List<void Function(GameSessionState)> _sessionListeners = [];
+
+  void addSessionListener(void Function(GameSessionState) listener) {
+    _sessionListeners.add(listener);
+    listener(_session);
+  }
+
+  void removeSessionListener(void Function(GameSessionState) listener) {
+    _sessionListeners.remove(listener);
+  }
+
+  void _setSession(GameSessionState next) {
+    _session = next;
+    for (final listener in List.of(_sessionListeners)) {
+      listener(_session);
+    }
+  }
 
   @override
   Future<void> onLoad() async {
@@ -64,7 +91,7 @@ class ZigZagGame extends flame.FlameGame {
     // Add path/world manager which will generate and maintain the
     // zig-zag safe path ahead of the player.
     add(
-      PathWorld(
+      _pathWorld = PathWorld(
         worldSize: worldSize,
         getDifficulty: () => _difficulty,
         getDistance: () => _session.verticalDistance,
@@ -98,22 +125,25 @@ class ZigZagGame extends flame.FlameGame {
     );
 
     final level = levels[levelIndex];
-    _session = GameSessionState.initial(levelIndex: levelIndex)
-        .copyWith(isRunning: true);
-    _difficulty = level.baseDifficulty;
+    _setSession(
+      GameSessionState.initial(levelIndex: levelIndex).copyWith(
+        isRunning: true,
+      ),
+    );
+    _difficulty = DifficultyCurve.evaluate(level, 0);
 
     resumeEngine();
   }
 
   void pauseGame() {
     if (!isRunning) return;
-    _session = _session.copyWith(isRunning: false);
+    _setSession(_session.copyWith(isRunning: false));
     pauseEngine();
   }
 
   void resumeGame() {
     if (_session.isGameOver || _session.isRunning) return;
-    _session = _session.copyWith(isRunning: true);
+    _setSession(_session.copyWith(isRunning: true));
     resumeEngine();
   }
 
@@ -123,9 +153,11 @@ class ZigZagGame extends flame.FlameGame {
 
   void markGameOver() {
     if (_session.isGameOver) return;
-    _session = _session.copyWith(
-      isRunning: false,
-      isGameOver: true,
+    _setSession(
+      _session.copyWith(
+        isRunning: false,
+        isGameOver: true,
+      ),
     );
     pauseEngine();
   }
@@ -133,16 +165,45 @@ class ZigZagGame extends flame.FlameGame {
   @override
   void update(double dt) {
     if (isRunning) {
-      // For now we only track vertical distance using scroll speed.
-      // Camera scrolling and world generation will hook into this in
-      // later chapters.
-      final distanceDelta = _difficulty.scrollSpeed * dt;
-      _session = _session.copyWith(
-        verticalDistance: _session.verticalDistance + distanceDelta,
+      final level = levels[_session.levelIndex];
+
+      // Update difficulty based on current run distance.
+      _difficulty = DifficultyCurve.evaluate(
+        level,
+        _session.verticalDistance,
       );
+
+      // Track vertical distance using the current scroll speed.
+      final distanceDelta = _difficulty.scrollSpeed * dt;
+      _setSession(
+        _session.copyWith(
+          verticalDistance: _session.verticalDistance + distanceDelta,
+        ),
+      );
+
+      _checkCollisions();
     }
 
     super.update(dt);
+  }
+
+  void _checkCollisions() {
+    final pos = _player.position;
+    final radius = _player.radius;
+
+    final withinHorizontal =
+        pos.x - radius >= 0 && pos.x + radius <= worldSize.x;
+    final withinVertical =
+        pos.y - radius >= 0 && pos.y + radius <= worldSize.y;
+
+    if (!withinHorizontal || !withinVertical) {
+      markGameOver();
+      return;
+    }
+
+    if (!pathWorld.isPointInSafePath(pos)) {
+      markGameOver();
+    }
   }
 }
 

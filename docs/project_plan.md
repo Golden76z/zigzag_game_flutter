@@ -22,9 +22,9 @@
 - [ ] Chapter 3 – Game State & Difficulty System
   - [x] Define `GameSessionState` (score, status, elapsed time/distance)
   - [x] Define `DifficultyDescriptor` (columns, speed, path width, zig-zag frequency)
-  - [ ] Implement difficulty curve over time/distance
-  - [ ] Expose difficulty presets (easy/medium/hard) via configuration
-  - [ ] Connect difficulty output to camera speed and path parameters
+  - [x] Implement difficulty curve over time/distance
+  - [x] Expose difficulty presets (levels 1–10) via configuration
+  - [x] Connect difficulty output to camera speed and path parameters
 
 - [ ] Chapter 4 – Path & World Generation
   - [x] Define column/grid configuration (number of columns, column width)
@@ -38,8 +38,8 @@
   - [x] Implement basic player component (circle or placeholder sprite)
   - [x] Implement horizontal-only movement (touch/drag or buttons)
   - [x] Ensure smooth movement (lerp/acceleration, not grid snapping)
-  - [ ] Implement collision logic against unsafe areas/path bounds
-  - [ ] Handle out-of-bounds or off-screen as game over
+  - [x] Implement collision logic against unsafe areas/path bounds
+  - [x] Handle out-of-bounds or off-screen as game over
 
 - [ ] Chapter 6 – Camera & Scrolling
   - [ ] Implement upward camera scrolling tied to difficulty speed
@@ -48,9 +48,9 @@
   - [ ] Profile scroll performance and adjust update cadence if needed
 
 - [ ] Chapter 7 – UI, States & Flow
-  - [ ] Hook Flame overlays or Flutter screens for: Menu, In-Game HUD, Pause, Game Over
-  - [ ] Display score (time/distance survived) and difficulty indicators
-  - [ ] Implement start, pause, resume, and restart flows end-to-end
+  - [x] Hook Flame overlays or Flutter screens for: Menu, In-Game HUD, Pause, Game Over
+  - [x] Display score (time/distance survived) and difficulty indicators
+  - [x] Implement start, pause, resume, and restart flows end-to-end
   - [ ] Ensure no unnecessary widget rebuilds on HUD updates
 
 - [ ] Chapter 8 – Difficulty Tuning & Balancing

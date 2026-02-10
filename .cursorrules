@@ -1,0 +1,124 @@
+project:
+  name: Zig-Zag Path Survival
+  tech_stack:
+    - flutter
+    - flame
+  goals:
+    - simple-to-start
+    - scalable-architecture
+    - mobile-first
+
+code_organization:
+  principles:
+    - "Separate game state, world generation, player logic, difficulty, and rendering."
+    - "Prefer small, focused files and classes over monolithic ones."
+    - "Use data/config objects for tunable values instead of hardcoding in logic."
+    - "Group game code under a dedicated `game/` directory with clear submodules."
+  structure:
+    - "game/core: base game, main game loop, shared types, configuration."
+    - "game/world: path generation, world segments, column layout, cleanup logic."
+    - "game/player: player component, input handling, movement, collision."
+    - "game/difficulty: difficulty curves, scaling rules, presets."
+    - "game/ui: overlays, HUD, pause/game-over integration with Flutter UI."
+    - "config/: data-only configuration, difficulty presets, constants."
+
+flame_best_practices:
+  components:
+    - "Extend `FlameGame` (or a suitable Flame base) for the main game."
+    - "Use `Component` subclasses for player, path segments, and other entities."
+    - "Avoid tight coupling between components; communicate via events or a central game controller when needed."
+    - "Use `onLoad`, `onRemove`, and lifecycle methods instead of heavy constructors."
+  performance:
+    - "Avoid creating and disposing large numbers of short-lived components per frame."
+    - "Consider simple pooling for frequently reused components (e.g., path tiles/segments) if profiling shows churn."
+    - "Use simple geometric math (rects, lines, columns) before introducing complex physics."
+    - "Limit per-frame allocations in `update` and `render` methods."
+  rendering:
+    - "Keep rendering logic inside Flame components; keep higher-level rules in controllers/managers."
+    - "Use camera and viewport correctly (no manual coordinate hacks if avoidable)."
+    - "Prefer simple debug visuals first (rects, lines, circles) over premature asset-heavy rendering."
+
+state_and_logic:
+  rules:
+    - "Treat game state as a separate concern from drawing; logic should not depend on widget tree details."
+    - "Store game state in dedicated classes (e.g., `GameSessionState`, `DifficultyState`)."
+    - "Use immutable or copy-with style updates for configuration and difficulty descriptors."
+    - "Centralize game mode and lifecycle (running, paused, game-over) in a single controller."
+  separation:
+    - "World generation should only depend on configuration and pseudo-randomness, not on UI."
+    - "Difficulty system should output parameters (speed, path width, columns, zig-zag frequency) consumed by world and player systems."
+    - "UI overlays should observe read-only state from the game (e.g., score, status) and dispatch high-level events (start, pause, restart)."
+
+data_driven_design:
+  guidelines:
+    - "Expose tunable values via configuration objects and JSON-like maps where reasonable."
+    - "Define difficulty presets (easy/medium/hard) as data, not as scattered if/else in code."
+    - "Store constants (e.g., base scroll speed, min/max columns, path width ranges) in `config/` instead of inline literals."
+    - "Keep random generation deterministic per segment when seeded with segment index and difficulty data."
+  difficulty_system:
+    - "Represent difficulty as a function of time/distance that returns a descriptor object."
+    - "Descriptor should include: number_of_columns, scroll_speed, path_width, zigzag_frequency/intensity."
+    - "World generation and camera speed must read exclusively from the difficulty descriptor."
+    - "Adding new difficulty dimensions (e.g., hazards, power-ups) should only require extending the descriptor, not rewriting core systems."
+
+path_system:
+  design:
+    - "Divide the playfield into vertical columns; all horizontal positions should derive from this grid."
+    - "Represent the safe path as a sequence of column indices and widths per segment."
+    - "The path generator must enforce playability: always at least one contiguous safe region reaching the next segment."
+    - "Keep the generator deterministic per segment index + seed; do not use global mutable random without control."
+  scalability:
+    - "Support tuning: number of columns, path width range, zig-zag frequency, and curvature."
+    - "Allow different generators or presets (e.g., gentle, chaotic) behind a common interface."
+    - "Avoid baking assumptions about screen size; derive world units from viewport or logical size."
+
+camera_and_world:
+  rules:
+    - "Camera scrolls vertically upward at a speed driven by the difficulty system."
+    - "Generate world/path segments ahead of the camera by a fixed buffer distance."
+    - "Regularly remove segments that are sufficiently below the camera to avoid memory leaks."
+    - "Do not rely on unbounded lists of components; track segments and cleanly remove them."
+
+performance_rules:
+  flame_widgets:
+    - "Keep Flutter widget tree shallow around the game; use FlameGame + overlays instead of deeply nested rebuild-heavy structures."
+    - "Avoid rebuilding the entire game widget when updating score or HUD; use Flame overlays or listeners."
+  updates:
+    - "Avoid heavy computations in `render`; favor precomputation in `update` or during generation."
+    - "Do not perform I/O, asset loading, or logging spam in per-frame code."
+  memory:
+    - "Clean up off-screen segments and components promptly."
+    - "Be mindful of texture sizes and sprite usage once assets are added."
+
+ui_and_integration:
+  rules:
+    - "Integrate the Flame game inside the existing Flutter UI as a child widget, not a full-screen takeover that ignores navigation."
+    - "Use Flame overlays or Flutter widgets for menus, pause, game over, and HUD."
+    - "Game start, pause, and restart should be driven by clear methods on the game instance."
+    - "Avoid business logic inside `build` methods; delegate to game controllers/managers."
+
+scalability_guidelines:
+  future_features:
+    - "Design with future modes, power-ups, skins, and leaderboards in mind, but do not over-engineer."
+    - "New modes should plug into the same difficulty and world-generation abstractions when possible."
+    - "Skins and visuals should be data/config driven, not hardwired into logic."
+    - "Online features (e.g., leaderboards) must be layered above core offline gameplay."
+  extension_points:
+    - "Keep interfaces small and document expectations (e.g., what a path segment provider guarantees)."
+    - "Prefer composition over inheritance for new behaviors."
+    - "Encapsulate randomness sources to allow deterministic replays later."
+
+testing_and_debugging:
+  rules:
+    - "Provide simple debug modes: show columns, safe path, and collision bounds."
+    - "Keep deterministic seeds for reproducing difficult segments."
+    - "Avoid flakiness by making difficulty and generation deterministic for a given seed/time."
+
+conventions:
+  naming:
+    - "Use clear, domain-specific names: PathSegment, ColumnConfig, DifficultyCurve, etc."
+    - "Avoid abbreviations unless widely understood (e.g., HUD)."
+  style:
+    - "Follow standard Dart/Flutter style and Flame idioms."
+    - "Document non-obvious math and coordinate transforms directly in code comments."
+

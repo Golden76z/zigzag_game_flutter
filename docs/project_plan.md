@@ -14,14 +14,14 @@
   - [ ] Verify iOS build runs on a simulator/device (where applicable)
 
 - [ ] Chapter 2 – Core Game Shell
-  - [ ] Create main `ZigZagGame` class extending appropriate Flame base
-  - [ ] Set up logical coordinate system / viewport
-  - [ ] Integrate Flame game widget into existing Flutter UI
-  - [ ] Wire basic game lifecycle: start, pause, resume, restart entrypoints
+  - [x] Create main `ZigZagGame` class extending appropriate Flame base
+  - [x] Set up logical coordinate system / viewport
+  - [x] Integrate Flame game widget into existing Flutter UI
+  - [x] Wire basic game lifecycle: start, pause, resume, restart entrypoints
 
 - [ ] Chapter 3 – Game State & Difficulty System
-  - [ ] Define `GameSessionState` (score, status, elapsed time/distance)
-  - [ ] Define `DifficultyDescriptor` (columns, speed, path width, zig-zag frequency)
+  - [x] Define `GameSessionState` (score, status, elapsed time/distance)
+  - [x] Define `DifficultyDescriptor` (columns, speed, path width, zig-zag frequency)
   - [ ] Implement difficulty curve over time/distance
   - [ ] Expose difficulty presets (easy/medium/hard) via configuration
   - [ ] Connect difficulty output to camera speed and path parameters

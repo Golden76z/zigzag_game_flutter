@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'game/core/zigzag_game.dart';
+import 'game/difficulty/level_config.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -221,7 +222,11 @@ class _GameScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final game = ZigZagGame();
+    final levels = Levels.initialLevels();
+    final game = ZigZagGame(
+      levels: levels,
+      initialLevelIndex: 0,
+    )..startLevel(0);
 
     return Scaffold(
       backgroundColor: Colors.black,

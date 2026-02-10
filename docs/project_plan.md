@@ -32,7 +32,7 @@
   - [x] Implement path generator (zig-zag, deterministic, always playable)
   - [x] Spawn and render world/path segments ahead of camera
   - [x] Implement cleanup of off-screen segments
-  - [ ] Add optional debug rendering for columns and safe path
+  - [x] Add optional debug rendering for columns and safe path
 
 - [ ] Chapter 5 – Player System
   - [x] Implement basic player component (circle or placeholder sprite)
@@ -42,16 +42,16 @@
   - [x] Handle out-of-bounds or off-screen as game over
 
 - [ ] Chapter 6 – Camera & Scrolling
-  - [ ] Implement upward camera scrolling tied to difficulty speed
-  - [ ] Ensure player remains within view with vertical offset as needed
-  - [ ] Sync world generation buffer with camera position
+  - [x] Implement upward camera scrolling tied to difficulty speed
+  - [x] Ensure player remains within view with vertical offset as needed
+  - [x] Sync world generation buffer with camera position
   - [ ] Profile scroll performance and adjust update cadence if needed
 
 - [ ] Chapter 7 – UI, States & Flow
   - [x] Hook Flame overlays or Flutter screens for: Menu, In-Game HUD, Pause, Game Over
   - [x] Display score (time/distance survived) and difficulty indicators
   - [x] Implement start, pause, resume, and restart flows end-to-end
-  - [ ] Ensure no unnecessary widget rebuilds on HUD updates
+  - [x] Ensure no unnecessary widget rebuilds on HUD updates
 
 - [ ] Chapter 8 – Difficulty Tuning & Balancing
   - [ ] Tune base values for beginner-friendly gameplay
@@ -60,8 +60,8 @@
   - [ ] Document tuning guidelines in `docs/` or config comments
 
 - [ ] Chapter 9 – Polish, Debug Tools & Future Hooks
-  - [ ] Add simple debug overlay (FPS, current difficulty parameters)
-  - [ ] Add toggles for debug visuals (columns, path bounds, collisions)
+  - [x] Add simple debug overlay (FPS, current difficulty parameters)
+  - [x] Add toggles for debug visuals (columns, path bounds, collisions)
   - [ ] Cleanup code, ensure adherence to `.cursorrules`
   - [ ] Document extension points for skins, power-ups, and online leaderboards
 

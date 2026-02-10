@@ -42,6 +42,7 @@ class ZigZagGame extends flame.FlameGame {
   late DifficultyDescriptor _difficulty;
   late final PathWorld _pathWorld;
   late final PlayerComponent _player;
+  double _fps = 0;
 
   GameSessionState get session => _session;
   DifficultyDescriptor get difficulty => _difficulty;
@@ -90,13 +91,12 @@ class ZigZagGame extends flame.FlameGame {
 
     // Add path/world manager which will generate and maintain the
     // zig-zag safe path ahead of the player.
-    add(
-      _pathWorld = PathWorld(
-        worldSize: worldSize,
-        getDifficulty: () => _difficulty,
-        getDistance: () => _session.verticalDistance,
-      ),
+    _pathWorld = PathWorld(
+      worldSize: worldSize,
+      getDifficulty: () => _difficulty,
+      getDistance: () => _session.verticalDistance,
     );
+    add(_pathWorld);
 
     // Player sits slightly above the bottom of the screen.
     final playerRadius = worldSize.x * 0.04;
@@ -184,8 +184,17 @@ class ZigZagGame extends flame.FlameGame {
       _checkCollisions();
     }
 
+    // Track a smoothed FPS estimate for debug overlays.
+    if (dt > 0) {
+      final currentFps = 1 / dt;
+      const alpha = 0.1;
+      _fps = _fps == 0 ? currentFps : _fps * (1 - alpha) + currentFps * alpha;
+    }
+
     super.update(dt);
   }
+
+  double get fps => _fps;
 
   void _checkCollisions() {
     final pos = _player.position;

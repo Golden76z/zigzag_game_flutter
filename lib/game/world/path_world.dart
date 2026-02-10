@@ -1,4 +1,4 @@
-import 'dart:ui' show Color, Offset, Paint, Rect;
+import 'dart:ui' show Canvas, Color, Offset, Paint, Rect;
 
 import 'package:flame/components.dart';
 
@@ -37,6 +37,9 @@ class PathWorld extends Component {
 
   double get _bufferHeight => _segmentHeight * 4;
 
+  /// When true, draws debug column guides on top of the world.
+  bool debugDrawColumns = false;
+
   @override
   Future<void> onLoad() async {
     await super.onLoad();
@@ -58,6 +61,30 @@ class PathWorld extends Component {
     _cleanupSegments(distance);
 
     super.update(dt);
+  }
+
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+
+    if (!debugDrawColumns || _segments.isEmpty) {
+      return;
+    }
+
+    final difficulty = getDifficulty();
+    final columnWidth = _columnWidth(difficulty);
+    final guidePaint = Paint()
+      ..color = const Color(0x33FFFFFF)
+      ..strokeWidth = 1;
+
+    for (var i = 1; i < difficulty.columns; i++) {
+      final x = columnWidth * i;
+      canvas.drawLine(
+        Offset(x, 0),
+        Offset(x, worldSize.y),
+        guidePaint,
+      );
+    }
   }
 
   /// Returns true if the given point (in world/screen coordinates)

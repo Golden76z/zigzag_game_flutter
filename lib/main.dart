@@ -1,7 +1,6 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'game/core/game_session_state.dart';
 import 'game/core/zigzag_game.dart';
 import 'game/difficulty/level_config.dart';
@@ -250,6 +249,20 @@ class _GameScreenState extends State<_GameScreen> {
 
   void _onSessionChanged(GameSessionState next) {
     if (!mounted) return;
+
+    final prev = _session;
+    final prevDistance = prev.verticalDistance.toInt();
+    final nextDistance = next.verticalDistance.toInt();
+
+    final stateChanged = prev.isRunning != next.isRunning ||
+        prev.isGameOver != next.isGameOver ||
+        prev.levelIndex != next.levelIndex ||
+        prevDistance != nextDistance;
+
+    if (!stateChanged) {
+      return;
+    }
+
     setState(() {
       _session = next;
     });

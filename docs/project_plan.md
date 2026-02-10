@@ -7,9 +7,9 @@
   - [x] Define initial difficulty model (10 unlockable levels with progression)
 
 - [ ] Chapter 1 – Flutter & Flame Setup
-  - [ ] Initialize Flutter project (if not already)
-  - [ ] Add Flame (and related) dependencies
-  - [ ] Create `setup.sh` for dependencies + basic checks
+  - [x] Initialize Flutter project (if not already)
+  - [x] Add Flame (and related) dependencies
+  - [x] Create `setup.sh` for dependencies + basic checks
   - [ ] Verify Android build runs on a device/emulator
   - [ ] Verify iOS build runs on a simulator/device (where applicable)
 

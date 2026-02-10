@@ -1,7 +1,17 @@
+import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'game/core/zigzag_game.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
+
+  runApp(const ZigZagApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -116,6 +126,109 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: _incrementCounter,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class ZigZagApp extends StatelessWidget {
+  const ZigZagApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Zig-Zag Path Survival',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
+        scaffoldBackgroundColor: Colors.black,
+        useMaterial3: true,
+      ),
+      home: const _MainMenuScreen(),
+    );
+  }
+}
+
+/// Simple placeholder main menu that will later be replaced or
+/// enriched with your real menu/assets. It already embeds the Flame
+/// game via navigation.
+class _MainMenuScreen extends StatelessWidget {
+  const _MainMenuScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Zig-Zag Path Survival',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const _GameScreen(),
+                    ),
+                  );
+                },
+                child: const Text('Play'),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  // Placeholder for settings modal on top of the game screen.
+                  showDialog<void>(
+                    context: context,
+                    builder: (ctx) {
+                      return AlertDialog(
+                        title: const Text('Settings'),
+                        content: const Text(
+                          'Settings UI will be integrated here using your visual design.',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(ctx).pop(),
+                            child: const Text('Close'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                child: const Text('Settings'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Screen that hosts the Flame game widget. UI (menus, HUD, etc.)
+/// will sit on top of this via overlays or Flutter widgets.
+class _GameScreen extends StatelessWidget {
+  const _GameScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    final game = ZigZagGame();
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: SafeArea(
+        child: GameWidget(
+          game: game,
+        ),
       ),
     );
   }

@@ -27,17 +27,17 @@
   - [ ] Connect difficulty output to camera speed and path parameters
 
 - [ ] Chapter 4 – Path & World Generation
-  - [ ] Define column/grid configuration (number of columns, column width)
-  - [ ] Design deterministic path segment representation (safe path per segment)
-  - [ ] Implement path generator (zig-zag, deterministic, always playable)
-  - [ ] Spawn and render world/path segments ahead of camera
-  - [ ] Implement cleanup of off-screen segments
+  - [x] Define column/grid configuration (number of columns, column width)
+  - [x] Design deterministic path segment representation (safe path per segment)
+  - [x] Implement path generator (zig-zag, deterministic, always playable)
+  - [x] Spawn and render world/path segments ahead of camera
+  - [x] Implement cleanup of off-screen segments
   - [ ] Add optional debug rendering for columns and safe path
 
 - [ ] Chapter 5 – Player System
-  - [ ] Implement basic player component (circle or placeholder sprite)
-  - [ ] Implement horizontal-only movement (touch/drag or buttons)
-  - [ ] Ensure smooth movement (lerp/acceleration, not grid snapping)
+  - [x] Implement basic player component (circle or placeholder sprite)
+  - [x] Implement horizontal-only movement (touch/drag or buttons)
+  - [x] Ensure smooth movement (lerp/acceleration, not grid snapping)
   - [ ] Implement collision logic against unsafe areas/path bounds
   - [ ] Handle out-of-bounds or off-screen as game over
 

@@ -5,6 +5,9 @@ import 'package:flame/game.dart' as flame;
 
 import '../difficulty/difficulty_descriptor.dart';
 import '../difficulty/level_config.dart';
+import '../player/player_component.dart';
+import '../player/swipe_input_layer.dart';
+import '../world/path_world.dart';
 import 'game_session_state.dart';
 
 /// Core Flame game for Zig-Zag Path Survival.
@@ -36,18 +39,17 @@ class ZigZagGame extends flame.FlameGame {
 
   late GameSessionState _session;
   late DifficultyDescriptor _difficulty;
+  late final PlayerComponent _player;
 
   GameSessionState get session => _session;
   DifficultyDescriptor get difficulty => _difficulty;
+  PlayerComponent get player => _player;
 
   bool get isRunning => _session.isRunning && !_session.isGameOver;
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-
-    // TODO: Configure an explicit viewport (e.g. fixed resolution)
-    // once we finalize the desired logical resolution setup.
 
     // Simple background so we can see the game area before real
     // world/path rendering is implemented.
@@ -56,6 +58,34 @@ class ZigZagGame extends flame.FlameGame {
         position: Vector2.zero(),
         size: worldSize,
         paint: Paint()..color = const Color(0xFF101018),
+      ),
+    );
+
+    // Add path/world manager which will generate and maintain the
+    // zig-zag safe path ahead of the player.
+    add(
+      PathWorld(
+        worldSize: worldSize,
+        getDifficulty: () => _difficulty,
+        getDistance: () => _session.verticalDistance,
+      ),
+    );
+
+    // Player sits slightly above the bottom of the screen.
+    final playerRadius = worldSize.x * 0.04;
+    final playerY = worldSize.y * 0.75;
+    _player = PlayerComponent(
+      radius: playerRadius,
+      initialPosition: Vector2(worldSize.x / 2, playerY),
+    );
+    add(_player);
+
+    // Input layer that covers the entire world and translates
+    // horizontal drags into player movement.
+    add(
+      SwipeInputLayer(
+        player: _player,
+        worldSize: worldSize,
       ),
     );
   }
